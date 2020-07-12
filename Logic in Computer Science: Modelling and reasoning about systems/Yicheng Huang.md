@@ -203,3 +203,177 @@ Composition, Assignment, If-statement, Partial-while, Implied
 ### 4.5 Programming by contract
 
 为一段程序写contract（合同），`assumes`规定了前置条件，`guarantees`规定了后置条件，`modified only`规定了程序执行过程中哪个程序变量的值可能发生变化. 注意要避免循环论证，可以通过判断调用图有无环来判断.
+
+## Chapter 5: Modal logics and agents
+
+### 5.1 Modes of truth
+
+模态逻辑添加了表示不同truth模式的连接词，描述与知识、必要性或时间有关的truth.
+
+### 5.2 Basic modal logic
+
+#### 语法
+
+$\phi::=\bot\mid\top\mid p\mid(\neg\phi)\mid(\phi\wedge\phi)\mid(\phi\vee\phi)\mid(\phi\to\phi)\mid(\phi\leftrightarrow\phi)\mid(\Box\phi)\mid(\Diamond\phi)$
+
+#### 语义
+
+- 基本模态逻辑的一个模型$\mathcal{M}$（Kripke model）由三部分组成：
+  - 一个集合$W$，其中的元素被称为世界（world）；
+  - $W$上的一个关系$R$（$R\subseteq W\times W$），称为可达关系（accessibility relation），用$R(x,y)$来表示$(x,y)\in R$；
+  - 一个函数$L:W\to\mathcal{P}(\mathrm{Atoms})$，称为标记函数（labelling function）.
+
+- 需要注意的是：(1) $x\Vdash\Box\psi$当且仅当对于任意$R(x,y)$中的$y\in W$，有$y\Vdash\psi$. (2) $x\Vdash\Diamond\psi$当且仅当存在$y\in W$使得$R(x,y)$且$y\Vdash\psi$. （相当于CTL里面的AX和EX）其余的规则都很符合直觉.
+- 反直觉的一个case：$x\Vdash\Box\bot$成立当且仅当$x$没有可达世界.
+
+#### Formula和formula schemes
+
+- 有相同“形状”的一簇公式，称为formula schemes，比如$\phi\to\Box\Diamond\phi$是一个formula scheme. 有该formula scheme的形状的公式称为scheme的实例（instance），如$p\to\Box\Diamond p$.
+
+#### 模态公式之间的等价性
+
+- 我们称模态逻辑公式的集合$\Gamma$语义推导出公式$\psi$，若模型$\mathcal{M}=(W,R,L)$中的任意世界$x$，若对任意$\phi\in\Gamma$且$x\Vdash\phi$都有$x\Vdash\psi$. 此时，我们称$\Gamma\models\psi$成立. 若$\phi\models\psi$且$\psi\models\phi$，则$\phi$和$\psi$语义等价，记为$\phi\equiv\psi$.
+
+- $\neg\Box\phi\equiv \Diamond\neg\phi\qquad \neg\Diamond\phi\equiv\Box\neg\phi$
+- $\Box(\phi\wedge\psi)\equiv\Box\phi\wedge\Box\psi\qquad \Diamond(\phi\vee\psi)\equiv\Diamond\phi\vee\Diamond\psi$
+
+- $\Box\top\equiv\top$但不等价于$\Diamond\top$；$\Diamond\bot\equiv\bot$但不等价于$\Box\bot$.（存在性）
+
+#### 合法公式（Valid formulas）
+
+- 定义：基本模态逻辑中的一个公式$\phi$是合法（valid）的，若在所有模型中的所有世界都为真，也即$\models\phi$成立.
+
+### 5.3 逻辑工程（Logic engineering）
+
+![image-20200712111118231](/Users/macbook/Library/Application Support/typora-user-images/image-20200712111118231.png)
+
+![image-20200712110735648](/Users/macbook/Library/Application Support/typora-user-images/image-20200712110735648.png)
+
+- 必要性（Necessity）：物理必要性（宇宙的规律自身必要性）；逻辑必要性（无法不给这些论断yes的回答）
+
+#### 可达性关系的重要性质
+
+- $R(x,y)$可以解释为：根据$Q$对$x$的认知，$y$可能是真实世界，也即如果真实世界是$x$，那么$Q$不能排除真实世界是$y$的可能性.
+- ![image-20200712111828976](/Users/macbook/Library/Application Support/typora-user-images/image-20200712111828976.png)
+- 可以考察$R$是否具有自反、对称、传递等性质
+
+#### 对应理论（Correspondence theory）
+
+- 定义
+  - 一个框架（frame）$\mathcal{F}=(W,R)$是一个世界集合$W$和一个$W$上的二元关系$R$.（相当于没有标记函数的Kripke模型）
+  - 一个框架$\mathcal{F}=(W,R)$满足一个基本模态逻辑公式$\phi$，若对于每个标记函数$L:W\to\mathcal{P}(\mathrm{Atoms})$和每个$w\in W$，都有$\mathcal{M},w\Vdash\phi$成立，其中$\mathcal{M}=(W,R,L)$. 我们记为$\mathcal{F}\models\phi$.
+- 定理
+  - 以下语句是等价的：(1) $R$具有自反性；(2) $\mathcal{F}$满足$\Box\phi\to\phi$；(3) $\mathcal{F}$满足$\Box p\to p$.
+  - 以下语句是等价的：(1) $R$具有传递性；(2) $\mathcal{F}$满足$\Box\phi\to\Box\Box\phi$；(3) $\mathcal{F}$满足$\Box p\to\Box\Box p$.
+- serial: $\forall x\exists y, R(x,y)$; Euclidean: $\forall x,y,z,R(x,y)\wedge R(x,z)\to R(y,z)$; functional: 对每个$x$，有唯一的$y$使得$R(x,y)$; linear: $\forall x,y,z\in W, R(x,y)\wedge R(x,z)\to R(y,z)\vee y=z\vee R(z,y)$.![image-20200712121600202](/Users/macbook/Library/Application Support/typora-user-images/image-20200712121600202.png)
+
+#### 一些模态逻辑
+
+- 定义：设$\mathbb{L}$是模态逻辑formula schemes的集合，$\Gamma\cup\{\psi\}$是基本模态逻辑公式的集合.
+
+  - 集合$\Gamma$在实例替换下闭合，当且仅当若$\phi\in\Gamma$，则$\phi$的任意实例替换仍然在$\Gamma$中.
+  - 设$\mathbb{L}_c$是包含$\mathbb{L}$中的所有实例的最小集合.
+  - $\Gamma$语义推导出$\mathbb{L}$中的$\psi$，当且仅当$\Gamma\cup\mathbb{L}_c$语义推导出基本模态逻辑中的$\psi$. 此时$\Gamma\models_{\mathbb{L}}\psi$成立.
+
+- 模态逻辑：K
+
+  - 最弱的模态逻辑，无formula schemes，$\mathbb{L}=\emptyset$. 
+
+- 模态逻辑：KT45
+
+  - 也称为S5. $\mathbb{L}=\{T,4,5\}$. 用来描述knowledge：
+
+    - T: agent $Q$只知道真的东西；
+    - 4: 若agent $Q$知道某个东西，那么它知道它知道这个东西；
+    - 5: 若agent $Q$不知道某个东西，那么它知道它不知道这个东西；
+
+    - K: logical omniscience（逻辑全知），agent的知识在逻辑结论下闭合.
+
+  - KT45中的任意模态操作符和否定符所组成的串等价于下面之一：$-$, $\Box$, $\Diamond$, $\neg$, $\neg\Box$, $\neg\Diamond$，其中$-$是指没有任何否定或模态操作符.
+
+- 模态逻辑：KT4
+
+  - 也称为S4.
+  - KT4中的任意模态操作符和否定符所组成的串等价于下面之一：$-$, $\Box$, $\Diamond$, $\Box\Diamond$, $\Diamond\Box$, $\Box\Diamond\Box$, $\Diamond\Box\Diamond$, $\neg$, $\neg\Box$, $\neg\Diamond$, $\neg\Box\Diamond$, $\neg\Diamond\Box$, $\neg\Box\Diamond\Box$, $\neg\Diamond\Box\Diamond$.
+
+- **Intuitionistic propositional logic**
+
+  - 一个Intuitionistic propositional logic模型是一个KT4模型$\mathcal{M}=(W,R,L)$，其中$R(x,y)$总是蕴含着$L(x)\subseteq L(y)$. 给定一个命题逻辑公式，除了$\to$和$\neg$之外都直接用来定义$x\Vdash\phi$. 对于$\phi_1\to\phi_2$，我们定义$x\Vdash\phi_1\to\phi_2$当且仅当对任意$y$且$R(x,y)$，若$y\Vdash\phi_1$则有$y\Vdash\phi_2$. 对于$\neg\phi$，我们定义$x\Vdash\neg\phi$当且仅当对任意$y$且$R(x,y)$，我们有$y\not\Vdash\phi$.
+  - 排中律不成立.
+
+### 5.4 Natual deduction
+
+模态逻辑的额外规则：$\Box$ introduction和$\Box$ elimination，即(1) 若$\phi$出现在虚线框的末尾，那么$\Box\phi$可能会放入虚线框之后；(2) 若$\Box$出现在一个证明中，那么$\phi$可能会放入后续的虚线框中.
+
+#### KT45的额外规则
+
+- $\frac{\Box\phi}{\phi}T\qquad \frac{\Box]\phi}{\Box\Box\phi}4\qquad \frac{\neg\Box\phi}{\Box\neg\Box\phi}5$
+
+### 5.5 Reasoning about knowledge in a multi-agent system
+
+- 多Agent系统：不同的agent对世界有不同的认知.
+- Reasoning about knowledge是指一个团体中的agents不仅考虑世界的事实，还考虑团体中其他agents的知识. 例子：博弈论、经济学、密码学、协议等.
+
+#### 有趣的例子
+
+1. The wise-men puzzle：三个人被戴帽子，一共有3顶红帽子和2顶白帽子，三个人轮流说自己是否知道自己头上是什么颜色的帽子. 若前两个人都说不知道，那么第三个人就能确定自己头上是红帽子.
+2. The muddy-children puzzle：前者的并行版. 有很多孩子在花园里玩耍，有$k$（$k\ge1$）个孩子前额沾了泥土，每个孩子可以看见其他孩子前额的泥土，但看不到自己的. 
+   - 场景一：父亲反复询问是否有人知道自己前额有泥土. 第一次所有人都异口同声地回答了no，因为无法从别人的no中学到什么东西，所以一直回答no.
+   - 场景二：父亲首先宣布至少有一个人前额有泥土，然后他反复询问是否有人知道自己前额有泥土. 第一次所有人都回答了no. 在前$k-1$次所有人都回答no，直到第$k$次前额有泥土的人会回答yes.
+   - 两个场景的重要区别：尽管每个人都知道父亲宣布的内容，但父亲的宣布使得这句话成为了他们之中的共识，他们才知道所有其他人都知道这件事. 例如$k=2$，Ramon和Candy前额有泥土，他们两个都知道除他自己之外有人前额有泥土，但是如果父亲不宣布，Ramon就不知道Candy知道有人前额有泥土，对他来说，Candy可能是唯一一个前额有泥土的人.
+
+#### 模态逻辑KT45$^n$
+
+- 公式$K_ip$表示“agent $i$知道$p$”. 公式$E_Gp$表示“每个group $G$中的人都知道$p$”. 公式$C_G\phi$表示$G$的共识，即$E_G\phi\wedge E_GE_G\phi\wedge E_GE_GE_G\phi\wedge\dots$ $D_G\phi$表示$\phi$的知识分布在$G$中：尽管$G$中可能没有人知道它，但它们可以把各自的知识聚集在一起推出它.
+- 语法：$\phi::=\bot\mid\top\mid p\mid(\neg\phi)\mid(\phi\wedge\phi)\mid(\phi\vee\phi)\mid(\phi\to\phi)\mid(\phi\leftrightarrow\phi)\\\mid(K_i\phi)\mid(E_G\phi)\mid(C_G\phi)\mid(D_G\phi)$
+
+- 模型：$\mathcal{M}=(W,(R_i)_{i\in\mathcal{A}}, L)$，其中$\mathcal{A}$是$n$个agents组成的集合. $W$是可能世界的集合. 对任意$i\in\mathcal{A}$，$W$上的等价关系$R_i$别称为可达性关系（accessibility relation）. 标记函数$L:W\to\mathcal{P}(\mathrm{Atoms})$.
+- 语义：除去trivial的，(1) $x\Vdash K_i\psi$当且仅当对任意$y\in W$，$R_i(x,y)$蕴含$y\Vdash\psi$. (2) $x\Vdash E_G\psi$当且仅当对任意$i\in G$都有$x\Vdash K_i\psi$. (3) $x\Vdash C_G\psi$当且仅当对任意$k\ge1$都有$x\Vdash E_G^k\psi$，其中$E_G^k$指$E_GE_G\dots E_G$k次. (4) $x\Vdash D_G\psi$当且仅当对任意$y\in W$，若对任意$i\in G$有$R_i(x,y)$，则有$y\Vdash\psi$.
+- 可达性：定义G-reachable——$y$从$x$开始在$k$步G-reachable，若存在$w_1,w_2,\dots,w_{k-1}\in W$和$i_1,i_2,\dots,i_k\in G$使得$xR_{i_1}w_1R_{i_2}w_2\dots R_{i_{k-1}}w_{k-1}R_{i_k}y$，也即$R_{i_1}(x, w_1),R_{i_2}(w_1,w_2),\dots,R_{i_k}(w_k,y)$.
+  - $x\Vdash E_G^k\phi$当且仅当对任意从$x$开始在$k$步G-reachable的$y$，有$y\Vdash\phi$.
+  - $x\Vdash C_G\phi$当且仅当对任意从$x$开始G-reachable的$y$，有$y\Vdash\phi$.
+
+- 一些合法公式（valid formulas）
+
+  - $[]\phi\wedge [](\phi\to\psi)\to []\psi$，其中$[]$可为$K_i,E_G,C_G,D_G$.
+  - $[]\phi\to[][]\phi\quad\neg K_i\phi\to K_i\neg K_i\phi\quad K_i\phi\to\phi$，其中$[]$可为$K_i,D_G$.
+
+- 自然推理规则
+
+  ![image-20200712152740078](/Users/macbook/Library/Application Support/typora-user-images/image-20200712152740078.png)
+
+## Chapter 6: Binary decision diagrams
+
+### 6.1 Respresenting boolean functions
+
+- 布尔函数$f:\{0,1\}^n\to\{0,1\}$
+
+- 命题公式（Propositional formula）：用$\wedge$表示$\cdot$，用$\vee$表示$+$，用$\neg$表示$\overline{sth}$，用$\top$和$\bot$分别表示1和0.
+- 真值表：用表格方式列举$f(x,y)$里面$x,y,f(x,y)$的1/0情况.（浪费空间，但直观）
+- ![image-20200712160324642](/Users/macbook/Library/Application Support/typora-user-images/image-20200712160324642.png)
+
+#### 二叉决策树（Binary decision tree）
+
+- 定义：非终结结点标记为布尔变量$x,y,z,\dots$，终结结点标记为0或1，每个非终结结点有两条边，一条是实线，一条是虚线. 设$T$是一棵有限二叉决策树，那么$T$决定了一个特殊的非终结结点变量的布尔函数：给定一个对各个布尔变量的0/1赋值，从$T$的根结点开始，若当前结点的赋值为0，则走虚线，否则走实线. 函数的值就是到达的终结结点的值.
+
+#### 二叉决策图（Binary decision diagram）
+
+- 比二叉决策树更加general
+- subBDD：BDD在某给定结点以下的部分.
+- 将一个BDD归约成更精简的形式的方法：（这些方法维护了DAG的属性）
+  - C1. Removal of duplicate terminals.
+  - C2. Removal of redundant tests.
+  - C3. Removal of duplicate non-terminals.
+- BDD的定义：一个BDD是一个有限的DAG，它拥有一个唯一的初始结点，所有的终结结点都标记为0或1，所有的非终结结点都标记为布尔变量，每个非终结结点都有两条指向其他结点的边，一条标记为0，一条标记为1. 若没有任意C1-C3的优化可以再应用，那么我们称BDD是reduced（已归约的）.
+- 一个BDD表示一个**可满足**函数，若一个1-终结结点从根结点沿着一条一致路径（consistent path）可到达，其中一致路径是指路径上每个变量只有虚线或只有实线离开该变量所在的结点. **合法**函数：没有0-终结结点可到达.
+- 对于$f\cdot g$，将$B_f$中所有的1-终结结点替换为$B_g$；对于$f+g$，将$B_f$中所有的0-终结结点替换为$B_g$；对于$\overline{f}$，将$B_f$中的0和1-终结结点互换.
+
+#### 有序二叉决策图（Ordered BDDs）
+
+- 定义：设$[x_1,\dots,x_n]$是一个无重复的有序变量列表，$B$是所有变量都在该列表中的BDD. 我们称BDD有顺序$[x_1,\dots,x_n]$，若$B$的所有变量标记都出现在该列表中，并且对于$B$中任意路径的所有出现在$x_i$后面的$x_j$都有$i<j$. 一个Ordered BDD（OBDD）是一个对某个变量列表有顺序的BDD.
+- Reduced OBDD和布尔函数一一对应.
+- 一般来说，选择的变量顺序对OBDD的size影响很大.
+- Canonical representation的重要性：去除冗余变量；测试语义等价性；测试合法性；测试蕴含性（$f\cdot\overline{g}$）；测试可满足性.
+
+### 6.2 Algorithms for reduced OBDDs
+
