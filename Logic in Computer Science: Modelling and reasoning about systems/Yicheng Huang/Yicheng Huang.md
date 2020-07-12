@@ -245,16 +245,16 @@ $\phi::=\bot\mid\top\mid p\mid(\neg\phi)\mid(\phi\wedge\phi)\mid(\phi\vee\phi)\m
 
 ### 5.3 逻辑工程（Logic engineering）
 
-![image-20200712111118231](/Users/macbook/Library/Application Support/typora-user-images/image-20200712111118231.png)
+![image-20200712111118231](5.3-0.png)
 
-![image-20200712110735648](/Users/macbook/Library/Application Support/typora-user-images/image-20200712110735648.png)
+![image-20200712110735648](5.3-1.png)
 
 - 必要性（Necessity）：物理必要性（宇宙的规律自身必要性）；逻辑必要性（无法不给这些论断yes的回答）
 
 #### 可达性关系的重要性质
 
 - $R(x,y)$可以解释为：根据$Q$对$x$的认知，$y$可能是真实世界，也即如果真实世界是$x$，那么$Q$不能排除真实世界是$y$的可能性.
-- ![image-20200712111828976](/Users/macbook/Library/Application Support/typora-user-images/image-20200712111828976.png)
+- ![image-20200712111828976](5.3-2.png)
 - 可以考察$R$是否具有自反、对称、传递等性质
 
 #### 对应理论（Correspondence theory）
@@ -265,7 +265,7 @@ $\phi::=\bot\mid\top\mid p\mid(\neg\phi)\mid(\phi\wedge\phi)\mid(\phi\vee\phi)\m
 - 定理
   - 以下语句是等价的：(1) $R$具有自反性；(2) $\mathcal{F}$满足$\Box\phi\to\phi$；(3) $\mathcal{F}$满足$\Box p\to p$.
   - 以下语句是等价的：(1) $R$具有传递性；(2) $\mathcal{F}$满足$\Box\phi\to\Box\Box\phi$；(3) $\mathcal{F}$满足$\Box p\to\Box\Box p$.
-- serial: $\forall x\exists y, R(x,y)$; Euclidean: $\forall x,y,z,R(x,y)\wedge R(x,z)\to R(y,z)$; functional: 对每个$x$，有唯一的$y$使得$R(x,y)$; linear: $\forall x,y,z\in W, R(x,y)\wedge R(x,z)\to R(y,z)\vee y=z\vee R(z,y)$.![image-20200712121600202](/Users/macbook/Library/Application Support/typora-user-images/image-20200712121600202.png)
+- serial: $\forall x\exists y, R(x,y)$; Euclidean: $\forall x,y,z,R(x,y)\wedge R(x,z)\to R(y,z)$; functional: 对每个$x$，有唯一的$y$使得$R(x,y)$; linear: $\forall x,y,z\in W, R(x,y)\wedge R(x,z)\to R(y,z)\vee y=z\vee R(z,y)$.![image-20200712121600202](5.3-3.png)
 
 #### 一些模态逻辑
 
@@ -340,7 +340,7 @@ $\phi::=\bot\mid\top\mid p\mid(\neg\phi)\mid(\phi\wedge\phi)\mid(\phi\vee\phi)\m
 
 - 自然推理规则
 
-  ![image-20200712152740078](/Users/macbook/Library/Application Support/typora-user-images/image-20200712152740078.png)
+  ![image-20200712152740078](5.5.png)
 
 ## Chapter 6: Binary decision diagrams
 
@@ -350,7 +350,7 @@ $\phi::=\bot\mid\top\mid p\mid(\neg\phi)\mid(\phi\wedge\phi)\mid(\phi\vee\phi)\m
 
 - 命题公式（Propositional formula）：用$\wedge$表示$\cdot$，用$\vee$表示$+$，用$\neg$表示$\overline{sth}$，用$\top$和$\bot$分别表示1和0.
 - 真值表：用表格方式列举$f(x,y)$里面$x,y,f(x,y)$的1/0情况.（浪费空间，但直观）
-- ![image-20200712160324642](/Users/macbook/Library/Application Support/typora-user-images/image-20200712160324642.png)
+- ![6.1](6.1.png)
 
 #### 二叉决策树（Binary decision tree）
 
