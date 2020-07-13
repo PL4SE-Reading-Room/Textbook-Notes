@@ -120,6 +120,8 @@ Insight: 存在LTL能表达而CTL无法表达的公式，如LTL中的$\mathrm{F}
   1. 为公式$\neg\phi$构造自动机$A_{\neg\phi}$，它编码了所有满足$\neg\phi$的trace（即不满足$\phi$的trace），其中一个trace是一个包含谓词原子值的串.
   2. 将自动机$A_{\neg\phi}$与模型$\mathcal{M}$结合起来，得到一个传递系统，所含路径是自动机和模型系统的路径的交集.
   3. 在传递系统中寻找是否存在由$s$生成的某个状态开始的路径，若存在，则可以解释为一条从$\mathcal{M}$中的$s$开始的不满足$\phi$的路径.
+- $$\mathrm{pre}_{\exists}(Y)=\{s\in S\mid \mathrm{exists}\ s',(s\to s'\ \mathrm{and}\ s'\in Y)\}$$
+- $\mathrm{pre}_{\forall}(Y)=\{s\in S\mid\mathrm{for}\ \mathrm{all}\ s',(s\to s'\ \mathrm{implies}\ s'\in Y)\}$
 
 ### 3.7 The fixed-point characterisation of CTL
 
@@ -377,3 +379,110 @@ $\phi::=\bot\mid\top\mid p\mid(\neg\phi)\mid(\phi\wedge\phi)\mid(\phi\vee\phi)\m
 
 ### 6.2 Algorithms for reduced OBDDs
 
+#### reduce算法
+
+- 若$B$的顺序为$[x_1,x_2,\dots,x_l]$，那么$B$至多有$l+1$层. reduce算法自底向上一层层遍历$B$，同时将整数$\mathrm{id}(n)$标记到$B$的每个结点$n$，如此，有根结点分别为$n$和$m$的两个subOBDDs表示同一布尔函数当且仅当$\mathrm{id}(n)=\mathrm{id}(m)$.
+- 用$\mathrm{lo}(n)$表示从$n$通过虚线指向的结点，$\mathrm{hi}(n)$表示从$n$通过实现指向的结点.
+  - 若$\mathrm{id}(\mathrm{lo}(n))=\mathrm{id}(\mathrm{hi}(n))$，则将$\mathrm{id}(n)$设为这个值.（根据C2）
+  - 若存在另一个结点$m$使得$m$和$n$具有相同的变量$x_i$，并且$\mathrm{id}(\mathrm{lo}(n))=\mathrm{id}(\mathrm{lo}(m)),\mathrm{id}(\mathrm{hi}(n))=\mathrm{id}(\mathrm{hi}(m))$，将$\mathrm{id}(n)$设为$\mathrm{id}(m)$.（根据C3）
+  - 否则，将$\mathrm{id}(n)$设为下一个未用的整数标记.
+
+#### apply算法
+
+- 基于香农展开（Shannon expansion），apply函数：$f\ \mathrm{op}\ g=\overline{x_i}\cdot(f[0/x_i]\mathrm{op}\ g[0/x_i])+x_i\cdot(f[1/x_i]\mathrm{op}\ g[1/x_i])$. 从$B_f$和$B_g$的根结点开始，往下构建OBDD的结点$B_{f\ \mathrm{op}\ g}$，设$r_f$是$B_f$的根结点、$r_g$是$B_g$的根结点.
+  - 若$r_f$和$r_g$分别是终结结点$l_f$和$l_g$，则计算$l_f\mathrm{op}l_g$的值，若为0则结果OBDD为$B_0$，否则为$B_1$.
+  - 否则，若两者的根结点都是$x_i$-结点，则创建一个$x_i$-结点$n$，虚线指向$\texttt{apply}(\mathrm{op},\mathrm{lo}(r_f),\mathrm{lo}(r_g))$，实线指向$\texttt{apply}(\mathrm{op},\mathrm{hi}(r_f),\mathrm{hi}(r_g))$.
+  - 否则，若$r_f$是$x_i$-结点，但$r_g$是一个终结结点或$x_j$-结点（$j>i$），那么$B_g$中没有$x_i$-结点，因为两个OBDDs有兼容的变量顺序，所以$g$独立于$x_i$. 因此创建一个$x_i$结点，虚线指向$\texttt{apply}(\mathrm{op},\mathrm{lo}(r_f),r_g)$，实线指向$\texttt{apply}(\mathrm{op},\mathrm{hi}(r_f),r_g)$.
+  - 其他情况类似于case 3.
+- 最后可以加一步reduce.
+
+#### restrict算法
+
+- $\texttt{restrict}(0,x,B_f)$使用和$B_f$一样的变量顺序来计算表示$f[0/x]$的reduced OBDD.
+- 对任意标记$x$的结点$n$，入边重定向至$\mathrm{lo}(n)$，$n$被删去，然后做apply. $\texttt{restrict}(1,x,B_f)$类似.
+
+#### exists算法
+
+- $\exists x.f$定义为$f[0/x]+f[1/x]$，$\texttt{exists}$函数可以用$\texttt{apply}$和$\texttt{restrict}$算法实现：$\texttt{apply}(+,\texttt{restrict}(0,x,B_f),\texttt{restrict}(1,x,B_f))$.
+- 一般地，用$\exists\hat{x}.f$表示$\exists x_1.\exists x_2\dots\exists x_n.f$，其中$\hat{x}$表示$(x_1,x_2,\dots,x_n)$. 这个布尔函数的OBDD通过将每个标记为$x_i$地结点换成$+$的两个分支.
+- 全程量词$\forall$就是把$+$换成$\cdot$.
+
+![image-20200712214149210](6.2-0.png)
+
+![image-20200712214206479](6.2-1.png)
+
+#### OBDDs的变体
+
+- Parity OBDDs：一些非终结结点可能被标记为$\oplus$
+- 多于两个分支；不标记非终结结点；概率分支（掷骰子）
+
+### 6.3 Symbolic model checking
+
+#### 表示状态集合的子集
+
+- 设$S$是一个有限集合，我们的目标是将$S$的各个子集表示为OBDDs. 我们为每个元素$s\in S$赋予唯一的布尔向量$(v_1,v_2,\dots,v_n)$（$v_i\in\{0,1\}$），因此用布尔函数$f_T$来表示子集$T$，对于一个状态$s\in T$，$f_T$将$(v_1,v_2,\dots,v_n)$映射到1，否则映射到0. 若$x_i\in L(s)$，则$v_i=1$，否则$v_i=0$. 作为一个OBDD，这一状态可以表示为布尔函数$l_1\cdot l_2\cdot\cdots\cdot l_n$，其中若$x_i\in L(s)$则$l_i=x_i$否则$l_i=\overline{x_i}$. 于是状态集合$\{s_1,s_2,\dots,s_m\}$可以表示为布尔函数$(l_{11}\cdot l_{12}\cdot\cdots\cdot l_{1n})+(l_{21}\cdot l_{22}\cdot\cdots\cdot l_{2n})+\cdots+(l_{m1}\cdot l_{m2}\cdot\cdots\cdot l_{mn})$，其中$l_{i1}\cdot l_{i2}\cdot\cdots\cdot l_{in}$表示状态$s_i$.
+
+#### 表示传递关系
+
+- 模型$\mathcal{M}=(S,\to,L)$的传递关系$\to$是$S\times S$的子集，我们需要布尔向量的两份拷贝，可以用如下向量表示$s\to s'$：$((v_1,v_2,\dots,v_n),(v_1',v_2',\dots,v_n'))$，其中若$p_i\in L(s)$则$v_i$为1否则为0，若$p_i\in L(s')$则$v_i'$为1否则为0. 布尔函数即为$(l_1\cdot l_2\cdot\cdots\cdot l_n)\cdot(l_1'\cdot l_2'\cdot\cdots\cdot l_n')$.
+
+#### 实现函数$\mathrm{pre}_{\exists}$和$\mathrm{pre}_{\forall}$
+
+- $\mathrm{pre}_{\forall}(X)=S-\mathrm{pre}_{\exists}(S-X)$
+- 利用$B_X$和$B_\to$计算$\mathrm{pre}_{\exists}(X)$的OBDD：先将$B_X$中的变量命名为prime版本，称为$B_{X'}$，然后计算$\texttt{exists}(\hat{x}',\texttt{apply}(\cdot,B_\to,B_{X'}))$的OBDD.
+
+#### 合成OBDDs
+
+- key idea：用SMV来描述，然后直接合成OBDD，避开二叉决策树或真值表等size爆炸的中间表示.
+- SMV可以计算各变量下一状态的值，这个转换关系可以用布尔函数表达：$\prod\limits_{1\le i\le n}x_i'\leftrightarrow f_i$，其中$\prod$的范围是所有的非输入变量.
+- 对串行同步电路建模（例子）
+  - 图示：![image-20200713114453575](6.3.png)
+  - 表示电路的下一可能状态的函数$f^\to$是：$(x_1'\leftrightarrow\overline{x_1})\cdot(x_2'\leftrightarrow x_1\oplus x_2)$
+  - 然后转化为OBDD.
+
+- 对串行异步电路建模
+  - 在simultaneous模型中，一个全局转换中，任意数目的组件都可能有局部转换，于是$f^\to\stackrel{\mathrm{def}}{=}\sum\limits_{i=1}^n\bigg((x_i'\leftrightarrow f_i)\cdot\prod\limits_{j\neq i}(x_j'\leftrightarrow x_j)\bigg)$
+  - 在interleaving模型中，一个全局转换严格对应一个局部转换，于是$f^\to\stackrel{\mathrm{def}}{=}\sum\limits_{i=1}^n\bigg((x_i'\leftrightarrow f_i)\cdot\prod\limits_{j\neq i}(x_j'\leftrightarrow x_j)\bigg)$
+
+### 6.4 A relational mu-calculus
+
+本节介绍了一种用于指代布尔表达式上下文的不动点的语法，这种语言也为描述不动点不变量的交互和依赖提供了形式化.
+
+#### 语法
+
+- $v::=x\mid Z$
+- $f::=0\mid 1\mid v\mid\overline{f}\mid f_1+f_2\mid f_1\cdot f_2\mid f_1\oplus f_2\mid\\\exists x.f\mid\forall x.f\mid \mu Z.f\mid \nu Z.f\mid f[\hat{x}:=\hat{x}']$
+- $x$和$Z$是布尔变量，$\hat{x}$是变量元组. $\mu$和$\nu$分别称为最小不动点和最大不动点操作符. $\mu Z.f$和$\nu Z.f$可以理解为$\lambda$表达式.
+
+#### 语义
+
+- 设$\rho$是一个valuation，$v$是一个变量，我们用$\rho(v)$表示变量$v$被$\rho$赋值，用$\rho[v\mapsto0]$表示变量$v$被赋值为$v$.
+- 如此可以定义可满足性关系$\rho\models f$：
+  - $\rho\not\models 0\qquad \rho\models1\qquad \rho\models v\ \textrm{iff}\ \rho(v)\ \mathrm{equals}\ 1$
+  - $\rho\models\overline{f}\ \textrm{iff}\ \rho\not\models f\qquad \rho\models f+g\ \textrm{iff}\ \rho\models f\ \textrm{or}\ \rho\models g\qquad \rho\models f\cdot g\ \textrm{iff}\ \rho\models f\ \textrm{and}\ \rho\models g$
+  - $\rho\models f\oplus g\ \textrm{iff}\ \rho\models(f\cdot\overline{g}+\overline{f}\cdot g)\qquad \rho\models\exists x.f\ \textrm{iff}\ \rho[x\mapsto 0]\models f\ \textrm{or}\ \rho[x\mapsto1]\models f$
+  - $\rho\models\forall x.f\ \textrm{iff}\ \rho[x\mapsto 0]\models f\ \textrm{and}\ \rho[x\mapsto1]\models f\qquad \rho\models f[\hat{x}:=\hat{x}']\ \textrm{iff}\ \rho[\hat{x}:=\hat{x}']\models f$
+
+- 不动点操作符
+  - $\mu_0 Z.f\stackrel{\mathrm{def}}{=}0$
+  - $\mu_{m+1}Z.f\stackrel{\mathrm{def}}{=}f[\mu_mZ.f/Z]\qquad (m\ge0)$
+  - 可定义：$\rho\models\mu Z.f\ \textrm{iff}\ (\rho\models\mu_mZ.f\ \textrm{for some }m\ge0)$ 
+  - $\nu_0 Z.f\stackrel{\mathrm{def}}{=}1$
+  - $\nu_{m+1}Z.f\stackrel{\mathrm{def}}{=}f[\nu_mZ.f/Z]\qquad (m\ge0)$
+  - 可定义：$\rho\models\nu Z.f\ \textrm{iff}\ (\rho\models\nu_mZ.f\ \textrm{for all }m\ge0)$ 
+
+#### 编码CTL模型和规范
+
+前面6.3节讲了如何表示传递关系$\to$为布尔函数.
+
+- $f^x\stackrel{\mathrm{def}}{=}x\qquad \textrm{for varables }x$
+- $f^\bot\stackrel{\mathrm{def}}{=}0$
+- $f^{\neg\phi}\stackrel{\mathrm{def}}{=}\overline{f^\phi}$
+- $f^{\phi\wedge\psi}\stackrel{\mathrm{def}}{=}f^\phi\cdot f\psi$
+- $f^{\mathrm{EX}\ \phi}\stackrel{\mathrm{def}}{=}\exists \hat{x}'.(f^\to.f^\phi[\hat{x}:=\hat{x}'])$
+- EF计算最小不动点（$\mathrm{EF}\phi\equiv\phi\vee\mathrm{EX}\ \mathrm{EF}\phi$）：$f^{\mathrm{EF}\phi}\stackrel{\mathrm{def}}{=}\mu Z.(f^{\phi}+\exists\hat{x}'.(f^\to\cdot Z[\hat{x}:=\hat{x}']))$
+- 其他EU、AF、EG、EG也用类似的思路表示为布尔函数.
+
+#### Fairness
+
+命题连接符不影响公平性，只需考虑$E_CX,E_CU,E_CG$. 可以用$\texttt{fair}$布尔公式表示：$\texttt{fair}\stackrel{\mathrm{def}}{=}f^{E_CG\top}$. $\texttt{fair}$在一个状态$s$计算得1当且仅当从$s$开始存在一条对于$C$公平的路径，称$s$为公平状态（fair state）.
