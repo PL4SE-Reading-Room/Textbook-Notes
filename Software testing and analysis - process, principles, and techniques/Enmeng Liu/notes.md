@@ -79,3 +79,32 @@
 
 ## Chapter 2 A Framework for Test and Analysis
 
+### 2.1 Validation & Verification
+
++ 本书focus： 提升与评估dependability
++ validation：判断规范与用户的需求的一致性
++ verification：检查实现与规范的一致性
+  + 包含对于self-consistency和well-formedness的检查
++ 本书的focus更倾向于verification
++ dependabilty包括：
+  + correctness：在任何情况下程序与规范的绝对一致（almost never achieved）
+  + reliability：在期望使用下的行为正确的概率，是correctness的数值估计
+  + robustness：在异常情况下也需要保持的性质
+  + safety：防止非常糟糕的情况发生
+
+### 2.2 自由度
+
++ 如果存在绝对可靠的验证程序，那么图灵停机问题就会被解决，因此这是不可能的
+
++ 非确定性：对于性质S的各种技术，如果其中有一种技术无法在有限时间内给出正确答案，则S是非确定的
+
+  （穷举）
+
++ 悲观的：可能不接受正确的程序（很多静态分析工具）
+
++ 乐观的：可能接收正确的程序（testing）
+
++ 简化验证：找到性质S的一个充分（非必要）条件S'，转而验证S'
+
+  + 举例：并发环境中引入上锁协议来避免数据竞争
+
