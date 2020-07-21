@@ -127,3 +127,18 @@ $$
 $$
 [\![\forall v_{\text{new}}. (q / v \rightarrow v_{\text{new}})]\!]_{\text{assert}} = [\![\forall v. q]\!]_{\text{assert}} .
 $$
+
+## 作业
+
+### 1.2
+
+(a) $\exists k. b=k \times a$
+
+(b) $(\exists k. b = k \times a) \wedge (\exists k. c = k \times a)$
+
+(c) $d(a, b, c) \wedge (a = 0 \vee \neg \exists a'. (a' > a \wedge d(a', b, c)))$, 其中 $d(a, b, c) = (\exists k. b = k \times a) \wedge (\exists k. c = k \times a)$
+
+注：当$b=c=0$时，$b$和$c$的最大公约数为0
+
+(d) $\neg \exists s. (1 < s \wedge s < p \wedge \exists k. p = s \times k)$
+
