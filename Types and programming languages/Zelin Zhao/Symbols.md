@@ -42,3 +42,17 @@ Then x (y z) would be represented as `4 (3 2)`.
 
 **&#8614;**, function arrow, maps to
 >`f: a` **&#8614;** `b` means the function `f` maps the element `a` to the element `b`.
+
+***
+###The following symbols are from 
+> Formal Semantics of Programming Languages*
+***
+**m/X**, replace **X** with **m**
+We write **&#963;[m/X]** for the state obtained from **&#963;** by replacing its contents in **X** by **m**.
+***
+**Lambda notation**, Section 1.3.1
+It is sometimes useful to use the lambda notation (or **&#955;-notation**) to describe functions. It provides a way of refering to functions without having to name them. Suppose `f : X --> Y`is a function which for any element `x` in `X` gives a value `f(x)` which is exactly described by expression `e`, probably involving `x`. Then we sometime write
+**&#955;x&#8712;X.e** for the function `f`. Thus **&#955;x&#8712;X.e = {(x,e)| x&#8712;X}**,
+so **&#955;x&#8712;X.e** is just an abbreviation for the set of input-output values determined by the expression `e`.
+
+
