@@ -29,3 +29,19 @@ $$
 ### Recursive type mixed up with subtyping
 
 待续...
+
+
+
+## Chapter 21 Metatheory of Recursive Types
+
+1. What is a monotone function?
+2. What is F-closed, F-consistent, and a fixed point of F?
+3. What is Knaster-Tarski theorem? (The proof is pretty easy.)
+   1. The intersection of all F-closed sets is the least fixed point of F
+   2. The union of all F-consistent sets is the greatest fixed point of F
+4. What is induction and coinduction?
+   1.  coinduction is central to many areas of computer science.
+   2. used in concurrency theories, model checking algorithms, etc
+5. Definition of tree type is understandable, but what is T_f?  Why T_f is the least fixed point of the generating function?
+6. Finite subtyping and infinite subtyping are seemingly understandable. But after that, ??? (dog head)
+
