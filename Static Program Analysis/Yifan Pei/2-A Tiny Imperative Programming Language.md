@@ -53,7 +53,16 @@ The language lacks many features known from commonly used programming languages,
   P -> F ... F
   ```
 
-A simplification:  assumption that all declared variable and function names are unique in a program, i.e. that no identifiers is declared more than once.
+Restriction: 
+- all declared variable and function names are unique in a program, i.e. that no identifiers is declared more than once;
+- arithmetic operations and comparisons apply only to integers;
+- conditions in control structures must be integers;
+- only integers can be input and output of the main function;
+- only functions can be called, and with correct number of arguments;
+- the unary * operator only applies to pointers (or null);
+- field lookups are only performed on records, not on other types of values.
+
+Assume that their violation results in runtime errors.
 
 ## 2.3. Normalization
 
