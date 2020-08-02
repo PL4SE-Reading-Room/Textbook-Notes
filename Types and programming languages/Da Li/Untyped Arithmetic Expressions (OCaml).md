@@ -1,4 +1,4 @@
-# Full Untyped Implementation  (OCaml)
+# OCaml Implementation Details
 
 ### 第四章 untyped arith expression
 
@@ -23,7 +23,15 @@
 
 讲道理，这个Brujin indexed编码方式对一般人还是很不友好的...编码后的lambda表达式看起来比较别扭，不直观，同样的数字0，在不同的lambda嵌套层次，表示的就不是同一个变量。6.3.2 问题讨论了另一种 from the outside in 的编码策略，看上去更舒服。
 
-这个calculus是含context的，context的定义就是 list of (string * binding)，而binding又有两种，一种是无信息的 namebind，一种是 TmAbbBind，具体含义是啥？
+这个calculus是含context的，context的定义就是 list of (string * binding)
 
-讲道理，这个代码虽短，但是还没有消化透彻。
+而binding又有两种，一种是无信息的 namebind，这其实就是bound variable; 另一种是 TmAbbBind，就是被赋值的变量，比如x=true。
+
+对于TmVar来说，定义是 info * int * int。第一个int是当前变量在context内的编号（从0开始），第二个int是整个context中自由变量的数量？
+
+在Parsing的过程中，就有对context的更新操作，主要是添加一些NameBind，然后在evaluation部分再次对context作进一步修正，包含两种操作：将NameBind更新为TmBind，以及增加新的NameBind，比如lambda abstraction中使用的 bound variable。
+
+我发现只能看 Parser.mly，还勉强能看懂，只是VSCode不能正确解析语法；如果直接看编译后的 Parser.ml，则根本看不懂。。
+
+
 
