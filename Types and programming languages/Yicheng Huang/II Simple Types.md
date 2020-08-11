@@ -250,3 +250,158 @@ We use $\texttt{A},\texttt{B},\texttt{C}$ as the names of base types.
 
 ### 11.9 Sums
 
+- **Syntax**
+
+  ```
+  t ::= ...        // terms:
+        inl t      // tagging (left)
+        inr t      // tagging (right)
+        case t of inl x=>t | inr x=> t        // case
+  v ::= ...        // values:
+        inl v      // tagged value (left)
+        inr v      // tagged value (right)
+  T ::= ...        // types:
+        T+T        // sum type
+  ```
+
+- **Evaluation rules**
+
+  - $\texttt{case (inl v}_0\texttt{) of inl x}_1\Rightarrow\texttt{t}_1\mid\texttt{inr x}_2\Rightarrow\texttt{t}_2\to\texttt{[x}_1\mapsto\texttt{v}_0\texttt{]t}_1$        (E-CASEINL)
+  - $\texttt{case (inr v}_0\texttt{) of inl x}_1\Rightarrow\texttt{t}_1\mid\texttt{inr x}_2\Rightarrow\texttt{t}_2\to\texttt{[x}_2\mapsto\texttt{v}_0\texttt{]t}_2$        (E-CASEINR)
+  - $\dfrac{\texttt{t}_0\to\texttt{t}_0'}{\texttt{case t}_0\texttt{ of inl x}_1\Rightarrow\texttt{t}_1\mid\texttt{inr x}_2\Rightarrow\texttt{t}_2\\\to\texttt{case t}_0'\texttt{ of inl x}_1\Rightarrow\texttt{t}_1\mid\texttt{inr x}_2\Rightarrow\texttt{t}_2}$        (E-CASE)
+  - $\dfrac{\texttt{t}_1\to\texttt{t}_1'}{\texttt{inl t}_1\to\texttt{inl t}_1'}$        (E-INL)
+  - $\dfrac{\texttt{t}_1\to\texttt{t}_1'}{\texttt{inr t}_1\to\texttt{inr t}_1'}$        (E-INR)
+
+- **Typing rules**
+
+  - $\dfrac{\Gamma\vdash\texttt{t}_1\texttt{:T}_1}{\Gamma\vdash\texttt{inl t}_1\texttt{:T}_1\texttt{+T}_2}$        (T-INL)
+  - $\dfrac{\Gamma\vdash\texttt{t}_1\texttt{:T}_2}{\Gamma\vdash\texttt{inr t}_1\texttt{:T}_1\texttt{+T}_2}$        (T-INR)
+  - $\dfrac{\Gamma\vdash\texttt{t}_0\texttt{:T}_1\texttt{+T}_2\\\Gamma\texttt{,x}_1\texttt{:T}_1\vdash\texttt{t}_1\texttt{:T}\quad\Gamma\texttt{,x}_2\texttt{:T}_2\vdash\texttt{t}_2\texttt{:T}}{\Gamma\vdash\texttt{case t}_0\texttt{ of inl x}_1\Rightarrow\texttt{t}_1\mid\texttt{inr x}_2\Rightarrow\texttt{t}_2\texttt{:T}}$        (T-CASE)
+
+- **Failure of uniqueness of types** (e.g., $\texttt{inl t}_1$ is an element of $\texttt{T}_1\texttt{+T}_2$ for any type $\texttt{T}_2$), so we have various options:
+  1. Complicating the typechecking algorithm to *guess* a value.
+  2. Allow all possible values for $\texttt{T}_2$ to somehow be represented uniformly.
+  3. Annotation (provided by the programmer)
+
+### 11.10 Variants
+
+- Write $\texttt{<l}_i\texttt{=t> as <l}_i\texttt{:T}_1\texttt{,l}_2\texttt{:T}_2\texttt{>}$ instead of $\texttt{inl t as T}_1\texttt{+T}_2$.
+- **Syntax**
+  - $\texttt{t}::=\dots\mid\texttt{<l=t> as T}\mid\texttt{case t of <l}_i\texttt{=x}_i\texttt{>}\Rightarrow\texttt{t}_i^{i\in1\dots n}$
+  - $\texttt{T}::=\dots\mid\texttt{<l}_i\texttt{:T}_i^{i\in 1\dots n}\texttt{>}$
+
+- **Evaluation rules**
+  - $\texttt{case (<l}_j\texttt{=v}_j\texttt{> as T) of <l}_i\texttt{=x}_i\texttt{>}\Rightarrow\texttt{t}_i^{i\in 1\dots n}\rightarrow\texttt{[x}_j\mapsto\texttt{v}_j\texttt{]t}_j$        (E-CASEVARIANT)
+  - $\dfrac{\texttt{t}_0\to\texttt{t}_0'}{\texttt{case t}_0\texttt{ of <l}_i\texttt{=x}_i\texttt{>}\Rightarrow\texttt{t}_i^{i\in 1\dots n}\\\rightarrow\texttt{case t}_0'\texttt{ of <l}_i\texttt{=x}_i\texttt{>}\Rightarrow\texttt{t}_i^{i\in1\dots n}}$        (E-CASE)
+  - $\dfrac{\texttt{t}_i\to\texttt{t}_i'}{\texttt{<l}_i\texttt{=t}_i\texttt{> as T}\to\texttt{<l}_i\texttt{=t}_i'\texttt{> as T}}$        (E-VARIANT)
+
+- **Typing rules**
+  - $\dfrac{\Gamma\vdash \texttt{t}_j\texttt{:T}_j}{\Gamma\vdash\texttt{<l}_j\texttt{=t}_j\texttt{> as <l}_i\texttt{:T}_i^{i\in1\dots n}\texttt{>:<l}_i\texttt{:T}_i^{i\in1\dots n}\texttt{>}}$        (T-VARIANT)
+  - $\dfrac{\Gamma\vdash\texttt{t}_0\texttt{:<l}_i\texttt{:T}_i^{i\in1\dots n}\texttt{>}\\\textrm{for each }i\quad\Gamma\texttt{,x}_i\texttt{:T}_i\vdash\texttt{t}_i\texttt{:T}}{\Gamma\vdash\texttt{case t}_0\texttt{ of <l}_i\texttt{=x}_i\texttt{>}\Rightarrow\texttt{t}_i^{i\in1\dots n}\texttt{:T}}$        (T-CASE)
+- Application
+  - Options: $\texttt{OptionalNat = <none:Unit, some:Nat>}$
+  - Enumerations: $\texttt{weekday = <monday:Unit, tuesday:Unit, wednesday:Unit, }\\\texttt{thursday:Unit, friday:Unit>}$
+
+### 11.11 General Recursion
+
+- **Syntax**: $\texttt{t}::=\dots\mid\texttt{fix t}$
+- **Evaluation rules**
+  - $\texttt{fix (}\lambda\texttt{x:T}_1\texttt{.t}_2\texttt{)}\to\texttt{[x}\mapsto\texttt{(fix (}\lambda\texttt{x:T}_1\texttt{:t}_2\texttt{))]t}_2$        (E-FIXBETA)
+  - $\dfrac{\texttt{t}_1\to\texttt{t}_1'}{\texttt{fix t}_1\to\texttt{fix t}_1'}$        (E-FIX)
+- **Typing rules**
+  - $\dfrac{\Gamma\vdash\texttt{t}_1\texttt{:T}_1\to\texttt{T}_1}{\Gamma\vdash\texttt{fix t}_1\texttt{:T}_1}$        (T-FIX)
+- **Derived forms**
+  - $\texttt{letrec x:T}_1\texttt{=t}_1\texttt{ in t}_2\stackrel{\mathrm{ref}}{=}\texttt{let x=fix(}\lambda\texttt{x:T}_1\texttt{.t}_1\texttt{) in t}_2$
+
+### 11.2 Lists (easy, omitted)
+
+
+
+## Chapter 13: References
+
+### 13.1 Introduction
+
+- Basics: `r = ref 5` so that `r: Ref Nat`;  `!r` so that `5: Nat`; To change the value stored, `r := 7` , so `!r` evaluates to `7: Nat`.
+- References and aliasing
+  - make a copy of `r`: `s = r`, so that `s: Ref Nat`
+  - So `r` and `s` are aliases for the same cell, when `s := 82`, we have `!r` evaluating to `82: Nat`.
+
+### 13.2 Typing
+
+- **Typing rules** (later to be revised)
+  - $\dfrac{\Gamma\vdash\texttt{t}_1\texttt{:T}_1}{\Gamma\vdash\texttt{ref t}_1\texttt{:Ref T}_1}$        (T-REF)
+  - $\dfrac{\Gamma\vdash\texttt{t}_1\texttt{:Ref T}_1}{\Gamma\vdash\texttt{!t}_1\texttt{:T}_1}$        (T-DEREF)
+  - $\dfrac{\Gamma\vdash\texttt{t}_1\texttt{:Ref T}_1\quad \Gamma\vdash\texttt{t}_2\texttt{:T}_1}{\Gamma\vdash\texttt{t}_1\texttt{:=t}_2\texttt{:Unit}}$        (T-ASSIGN)
+
+### 13.3 Evaluation
+
+- **Syntax**
+
+  ```
+  t ::=          // terms:
+        x        // variable
+        λx:T.t   // abstraction
+        t t      // application
+        unit     // constant unit
+        ref t    // reference creation
+        !t       // dereference
+        t:=t     // assignment
+        l        // store location
+  ```
+
+- **Evaluation rules**
+
+  - $\dfrac{\texttt{t}_1\mid\mu\to\texttt{t}_1'\mid\mu'}{\texttt{!t}_1\mid\mu\to\texttt{!t}_1'\mid\mu'}$        (E-DEREF)
+  - $\dfrac{\mu\texttt{(l)=v}}{\texttt{!l}\mid\mu\to\texttt{v}\mid\mu}$        (E-DEREFLOC)
+  - $\dfrac{\texttt{t}_1\mid\mu\to\texttt{t}_1'\mid\mu'}{\texttt{t}_1\texttt{:=t}_2\mid\mu\to\texttt{t}_1'\texttt{:=t}_2\mid\mu'}$        (E-ASSIGN1)
+  - $\dfrac{\texttt{t}_2\mid\mu\to\texttt{t}_2'\mid\mu'}{\texttt{v}_1\texttt{:=t}_2\mid\mu\to\texttt{v}_1\texttt{:=t}_2'\mid\mu'}$        (E-ASSIGN2)
+  - $\texttt{l:=v}_2\mid\mu\to\texttt{unit}\mid\texttt{[l}\mapsto\texttt{v}_2\texttt{]}\mu$        (E-ASSIGN)
+  - $\dfrac{\texttt{t}_1\mid\mu\to\texttt{t}_1'\mid\mu'}{\texttt{ref t}_1\mid\mu\to\texttt{ref t}_1'\mid\mu'}$        (E-REF)
+  - $\dfrac{\texttt{l}\notin dom(\mu)}{\texttt{ref v}_1\mid\mu\to\texttt{l}\mid(\mu,\texttt{l}\mapsto\texttt{v}_1)}$        (E-REFV)
+
+### 13.4 Store Typings
+
+- Key question: "What is the type of a location?"
+
+- Failed attempt: $\dfrac{\Gamma\mid\mu\vdash\mu(\texttt{l})\texttt{:T}_1}{\Gamma\mid\mu\vdash\texttt{l:Ref T}_1}$
+  - Inefficient
+  - May meet a cycle reference and cannot derive anything at all
+
+- So we need a store typing context showing which location corresponds to which type: $\Sigma$
+
+- **Syntax** (cont)
+
+  ```
+  v ::=          // values:
+        λx:T.t   // abstraction value
+        unit     // constant unit
+        l        // store location
+  T ::=          // types:
+        T->T     // type of functions
+        Unit     // unit type
+        Ref T    // type of reference cells
+  Γ ::=          // contexts:
+        ∅        // empty context
+        Γ,x:T    // term variable binding
+  μ ::=          // stores:
+        ∅        // empty store
+        μ,l=v    // location binding
+  Σ ::=          // store typings:
+        ∅        // empty store typing
+        Σ,l:T    // location typing
+  ```
+
+- **Typing rules**
+
+  - $\dfrac{\texttt{x:T}\in\Gamma}{\Gamma\mid\Sigma\vdash\texttt{x:T}}$        (T-VAR)
+  - $\dfrac{\Gamma\texttt{,x:T}_1\mid\Sigma\vdash\texttt{t}_2\texttt{:T}_2}{\Gamma\mid\Sigma\vdash\lambda\texttt{x:T}_1\texttt{.t}_2\texttt{:T}_1\to\texttt{T}_2}$        (T-ABS)
+  - $\dfrac{\Gamma\mid\Sigma\vdash\texttt{t}_1\texttt{:T}_{11}\to\texttt{T}_{12}\quad\Gamma\mid\Sigma\vdash\texttt{t}_2\texttt{:T}_{11}}{\Gamma\mid\Sigma\vdash\texttt{t}_1\texttt{t}_2\texttt{:T}_{12}}$        (T-APP)
+  - $\Gamma\mid\Sigma\vdash\texttt{unit:Unit}$        (T-UNIT)
+  - $\dfrac{\Sigma(\texttt{l})\texttt{=T}_1}{\Gamma\mid\Sigma\vdash\texttt{l:Ref T}_1}$        (T-LOC)
+  - $\dfrac{\Gamma\mid\Sigma\vdash\texttt{t}_1\texttt{:T}_1}{\Gamma\mid\Sigma\vdash\texttt{ref t}_1\texttt{:Ref T}_1}$        (T-REF)
+  - $\dfrac{\Gamma\mid\Sigma\vdash\texttt{t}_1\texttt{:Ref T}_{11}}{\Gamma\mid\Sigma\vdash\texttt{!t}_1\texttt{:T}_{11}}$        (T-DEREF)
+  - $\dfrac{\Gamma\mid\Sigma\vdash\texttt{t}_1\texttt{:Ref T}_{11}\quad\Gamma\mid\Sigma\vdash\texttt{t}_2\texttt{:T}_{11}}{\Gamma\mid\Sigma\vdash\texttt{t}_1\texttt{:=t}_2\texttt{:Unit}}$        (T-ASSIGN)
+
+### 13.5 Safety
+
+- Preservation, Substitution, and Progress (omitted)
