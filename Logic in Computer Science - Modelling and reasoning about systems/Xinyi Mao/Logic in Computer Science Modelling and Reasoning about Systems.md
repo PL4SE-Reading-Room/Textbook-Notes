@@ -273,7 +273,7 @@ $p \wedge q \rightarrow r \dashv \vdash p \rightarrow (q \rightarrow r)$
 
 ---
 
-#### Exercise of Chap 1:
+#### Online Exercise of Chap 1:
 
 Q1)5	
 
@@ -366,6 +366,8 @@ above：$\phi ::= p|(\neg\phi)|(\phi\wedge\phi)|(\phi\vee\phi)|(\phi\rightarrow\
 
 $(((\neg p )\wedge q)\rightarrow(p\wedge(q\vee(\neg r)))$
 
+<span name="BNF"></span>
+
 ---
 
 ### 1.4 Semantics of propositional logic
@@ -426,7 +428,7 @@ Using the notion of the height of a parse tree, we realise that structural induc
 
 *page:61
 
-page:<a href="#chap1_4_1">62</a> semantic entailment relation 语义蕴含关系 $\models$
+page:<a href="#chap1_4_1">62</a> semantic entailment relation 语义蕴含关系 $\models$, `\models`
 
 
 
@@ -446,19 +448,100 @@ Completeness: if  ($\models$) holds, then ($\vdash$) is valid
 
 ​		($\vdash$) is valid **iff** ($\models$) holds / ($\models$) holds  **iff** ($\vdash$) is valid
 
+- 关于$\vdash and \vDash$ from wiki
+  - $\vdash$ - From P, I know that Q
+  - $\vDash$ - if P is True，then Q is True
+
 - iff(If and only if): <a href="#iff">book_link</a>, [wiki_link](https://en.jinzhao.wiki/wiki/If_and_only_if) 
 
 - proof:(Page 65 : **TODO**)
 
   <img src="D:\GitHub\Textbook-Notes\Logic in Computer Science - Modelling and reasoning about systems\Xinyi Mao\Logic in Computer Science Modelling and Reasoning about Systems\image-20200721133412592.png" alt="image-20200721133412592"  />
 
-**Step 1**:
+**Step 1**: p66
 
-**Definition 1.36** 重言式 
+**Definition 1.36** 重言式 tautology
 
-[TODO]
+A formula of propositional logic $\phi$ is called a tautology iff it evaluates to **T** under all its valuations, i.e. iff $\vDash \phi$
+
+
+
+**Step 2**:
+
+**Theorem 1.37** 重言式 tautology 是 定理 theorem
+
+if $\vDash \eta$ holds, then $\vdash \eta$ is valid.
+
+- if $\eta$ is a tautology, then $\eta$ is a theorem
+
+$\eta$ - `\eta`
+
+[TODO for Step 2]
 
 ---
 
 ### 1.5 Normal forms 范式
 
+*page：70
+
+#### 1.5.1 Semantic equivalence, satisfiability and validity
+
+**Definition 1.40** semantically equivalent 语义等价
+
+iff $\phi \models \psi$ and $\psi \models \phi$ ,  $\phi \equiv \psi$  
+
+<a href="#chap1_4_1">symbol link of turnstile & models</a> 
+
+$\vdash$ - `\vdash` , [turnstile(wiki)](https://en.jinzhao.wiki/wiki/Turnstile_(symbol))  syntactic consequence of provability 可证明性的句法推论
+
+![image-20200810232525414](D:\GitHub\Textbook-Notes\Logic in Computer Science - Modelling and reasoning about systems\Xinyi Mao\Logic in Computer Science Modelling and Reasoning about Systems\image-20200810232525414.png)
+
+
+
+$\models$ - `\models or \vDash`, semantic entailment relation 语义蕴含关系 semantic consequence 语义推论？[double turnstile(wiki)](https://en.jinzhao.wiki/wiki/Double_turnstile)
+
+![image-20200810232933120](D:\GitHub\Textbook-Notes\Logic in Computer Science - Modelling and reasoning about systems\Xinyi Mao\Logic in Computer Science Modelling and Reasoning about Systems\image-20200810232933120.png)
+
+
+
+$\equiv$ - `\equiv ` , semantically equivalent 语义等价
+
+<img src="D:\GitHub\Textbook-Notes\Logic in Computer Science - Modelling and reasoning about systems\Xinyi Mao\Logic in Computer Science Modelling and Reasoning about Systems\image-20200810235110510.png" alt="image-20200810235110510" style="zoom:80%;" />
+
+
+
+**Definition 1.42** conjunctive normal form 合取范式CNF 
+
+<img src="D:\GitHub\Textbook-Notes\Logic in Computer Science - Modelling and reasoning about systems\Xinyi Mao\Logic in Computer Science Modelling and Reasoning about Systems\image-20200810235445907.png" alt="image-20200810235445907" style="zoom: 67%;" />
+
+L - literal, atom p or neg of p
+
+D - clause, a **disjunction** of literals L
+
+C - formula, a **conjuntion** of clauses D
+
+Note: $(\neg(q\vee p)\vee r)\wedge p$ 不是CNF，这里$q\vee p$ 不是一个L
+
+
+
+- **Backus Naur form (BNF)** <a href="#BNF">book link</a>
+
+  ​	$\phi ::= p|(\neg\phi)|(\phi\wedge\phi)|(\phi\vee\phi)|(\phi\rightarrow\phi) $
+
+
+
+**Lemma 1.43** 在disjunction(\wedge)阶段, 如果同时存在$L_i$和$\neg L_i$,则CNF成立valid。
+
+**proof**：如果不存在，则一定有一种赋值使得CNF为false
+
+- 是atom则赋值为F，是neg atom则赋值为T
+
+---
+
+#### 1.5.2 Conjunctive normal forms and validity
+
+page：74
+
+![image-20200811133127235](D:\GitHub\Textbook-Notes\Logic in Computer Science - Modelling and reasoning about systems\Xinyi Mao\Logic in Computer Science Modelling and Reasoning about Systems\image-20200811133127235.png)
+
+为input formulas计算一个等价的CNF形式的formulas。
