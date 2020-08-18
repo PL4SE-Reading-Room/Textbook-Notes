@@ -127,3 +127,69 @@
   - $\texttt{T}_1\wedge\texttt{T}_2<:\texttt{T}_2$        (S-INTER2)
   - $\dfrac{\texttt{S}<:\texttt{T}_1\quad\texttt{S}<:\texttt{T}_2}{\texttt{S}<:\texttt{T}_1\wedge\texttt{T}_2}$         (S-INTER3)
   - $\texttt{S}\to\texttt{T}_1\wedge\texttt{S}\to\texttt{T}_2<:\texttt{S}\to\texttt{(T}_1\wedge\texttt{T}_2\texttt{)}$        (S-INTER4)
+
+
+
+## Chapter 16: Metatheory of Subtyping
+
+- Two problematic rules
+  - $\dfrac{\Gamma\vdash\texttt{t:S}\quad\texttt{S}<:\texttt{T}}{\Gamma\vdash\texttt{t:T}}$ (T-SUB) can be applied to *any* kind of term
+  - $\dfrac{\texttt{S}<:\texttt{U}\quad\texttt{U}<:\texttt{T}}{\texttt{S}<:\texttt{T}}$ (S-TRANS) its conclusion *overlaps* with that of the other rules. Also, $\texttt{U}$ does not appear in the conclusion and we have to *guess* it (infinite candidates).
+
+- **Solution**: replace the ordinary subtyping and typing relations by *algorithmic subtyping* and *algorithmic typing relations*.
+
+### 16.1 Algorithmic Subtyping
+
+- Crucial element: An algorithm for checking whether one type is a subtype of another.
+
+- *Add* a rule that **bundles** depth, width, and permutation subtyping into one:
+
+  - $\dfrac{\texttt{\{l}_i^{i\in1\dots n}\texttt{\}}\subseteq\texttt{\{k}_j^{j\in1\dots m}\texttt{\}}\quad\texttt{k}_j=\texttt{l}_i\texttt{ implies S}_j<:\texttt{T}_i}{\texttt{\{k}_j\texttt{:S}_j^{j\in1\dots m}\texttt{\}}<:\texttt{\{l}_i\texttt{:T}_i^{i\in1\dots n}\texttt{\}}}$        (S-RCD)
+
+  - S-REFL and S-TRANS can be eliminated.
+
+- **The algorithmic subtyping relation is the least relation on types closed under the rules below.**
+
+  - $\mapsto\texttt{S}<:\texttt{Top}$        (SA-TOP)
+  - $\dfrac{\texttt{\{l}_i^{i\in1\dots n}\texttt{\}}\subseteq\texttt{\{k}_j^{j\in1\dots m}\texttt{\}}\\\textrm{if }\texttt{k}_j\texttt{=l}_i\textrm{, then }\mapsto\texttt{S}_j<:\texttt{T}_i}{\mapsto\texttt{\{k}_j\texttt{:S}_j^{j\in1\dots m}\texttt{\}}<:\texttt{\{l}_i\texttt{:T}_i^{i\in1\dots n}\texttt{\}}}$        (SA-RCD)
+  - $\dfrac{\mapsto\texttt{T}_1<:\texttt{S}_1\quad\mapsto\texttt{S}_2<:\texttt{T}_2}{\mapsto\texttt{S}_1\to\texttt{S}_2<:\texttt{T}_1\to\texttt{T}_2}$        (SA-ARROW)
+
+- **Soundness and completeness**: $\texttt{S}<:\texttt{T}\textrm{ iff }\mapsto\texttt{S}<:\texttt{T}$
+- Pseudocode notation
+  - ![](pic4.png)
+
+- **Termination**: If $\mapsto\texttt{S}<:\texttt{T}$ is derivable, then $subtype(\texttt{S},\texttt{T})$ will return $true$. If not, then $subtype(\texttt{S},\texttt{T})$ will return $false$.
+
+### 16.2 Algorithmic Typing
+
+- **Observation**: In most cases subsumption can be "postponed" by moving it down the tree toward the root.
+  - By applying these transformations repeatedly, we can rewrite an arbitrary typing derivation into a special form where T-SUB appears in only two places: (1) *at the end of right-hand subderivations of applications*, (2) *at the very end of the whole derivation*.
+  - For (2), deleting it results in no great harm (the type assigned to this term may be a smaller (better) one). For (1), we can replace the application rule by a slightly more **powerful** one.
+    - $\dfrac{\Gamma\vdash\texttt{t}_1\texttt{:T}_{11}\to\texttt{T}_{12}\quad\Gamma\vdash\texttt{t}_2\texttt{:T}_{2}\quad\texttt{T}_2<:\texttt{T}_{11}}{\Gamma\vdash\texttt{t}_1\texttt{t}_2\texttt{:T}_{12}}$
+    - Therefore no use of T-SUB, and this more powerful one is syntax directed (no overlaping with other rules).
+- **The algorithmic typing relation is the least relation closed under the rules below.**
+  - $\dfrac{\texttt{x:T}\in\Gamma}{\Gamma\mapsto\texttt{x:T}}$        (TA-VAR)
+  - $\dfrac{\Gamma\texttt{,x:T}_1\mapsto\texttt{t}_2\texttt{:T}_2}{\Gamma\mapsto\lambda\texttt{x:T}_1\texttt{.t}_2\texttt{:T}_1\to\texttt{T}_2}$        (TA-ABS)
+  - $\dfrac{\Gamma\mapsto\texttt{t}_1\texttt{:T}_1\quad\texttt{T}_1=\texttt{T}_{11}\to\texttt{T}_{12}\\\Gamma\mapsto\texttt{t}_2\texttt{:T}_2\quad\mapsto\texttt{T}_2<:\texttt{T}_{11}}{\Gamma\mapsto\texttt{t}_1\texttt{t}_2\texttt{:T}_{12}}$        (TA-APP)
+  - $\dfrac{\textrm{for each }i\quad\Gamma\mapsto\texttt{t}_i\texttt{:T}_i}{\Gamma\mapsto\texttt{\{l}_1\texttt{=t}_1\dots\texttt{l}_n\texttt{=t}_n\texttt{\}}\texttt{:\{l}_1\texttt{:T}_1\dots\texttt{l}_n\texttt{:T}_n\texttt{\}}}$        (TA-RCD)
+  - $\dfrac{\Gamma\mapsto\texttt{t}_1\texttt{:R}_1\quad\texttt{R}_1\texttt{=\{l}_1\texttt{:T}_1\dots\texttt{l}_n\texttt{:T}_n\texttt{\}}}{\Gamma\mapsto\texttt{t}_1\texttt{.l}_i\texttt{:T}_i}$        (TA-PROJ)
+- **Soundness**: If $\Gamma\mapsto\texttt{t:T}$, then $\Gamma\vdash\texttt{t:T}$.
+- **Completeness, or Minimal Typing**: If $\Gamma\vdash\texttt{t:T}$, then $\Gamma\mapsto\texttt{t:S}$ for some $\texttt{S}<:\texttt{T}$.
+
+### 16.3 Joins and Meets
+
+- Example: `if true then {x=true,y=false} else {x=false,z=true}`
+  - The least type that is a supertype of both `{x:Bool,y:Bool}` and `{x:Bool,z:Bool}` is `{x:Bool}`.
+  - This type is often called the *join* of the types of the branches.
+- **Formal definition**: A type $\texttt{J}$ is called a *join* of a pair of types $\texttt{S}$ and $\texttt{T}$, written $\texttt{S}\wedge\texttt{T}=\texttt{J}$, if $\texttt{S}<:\texttt{J},\texttt{T}<:\texttt{J}$, and, for all types $\texttt{U}$, if $\texttt{S}<:\texttt{U}$ and $\texttt{T}<:\texttt{U}$, then $\texttt{J}<:\texttt{U}$. Similarly we can define *meet* of types $\texttt{S}$ and $\texttt{T}$.
+- Existence of joins and bounded meets
+  - For every pair of types $\texttt{S}$ and $\texttt{T}$, there is some type $\texttt{J}$ such that $\texttt{S}\vee\texttt{T}=\texttt{J}$.
+  - For every pair of types $\texttt{S}$ and $\texttt{T}$ with a common subtype, there is some type $\texttt{M}$ such that $\texttt{S}\wedge\texttt{T}=\texttt{M}$.
+- $\dfrac{\Gamma\vdash\texttt{t}_1\texttt{:T}_1\quad\texttt{T}_1\texttt{=Bool}\\\Gamma\vdash\texttt{t}_2\texttt{:T}_2\quad\Gamma\vdash\texttt{t}_3\texttt{:T}_3\quad\texttt{T}_2\vee\texttt{T}_3\texttt{=T}}{\Gamma\vdash\texttt{if t}_1\texttt{ then t}_2\texttt{ else t}_3\texttt{:T}}$        (TA-IF)
+
+### 16.4 Algorithmic Typing and the Bottom Type
+
+- $\mapsto\texttt{Bot}<:\texttt{T}$        (SA-BOT)
+- $\dfrac{\Gamma\mapsto\texttt{t}_1\texttt{:T}_1\quad\texttt{T}_1\texttt{=Bot}\quad\Gamma\mapsto\texttt{t}_2\texttt{:T}_2}{\Gamma\mapsto\texttt{t}_1\texttt{t}_2\texttt{:Bot}}$        (TA-APPBOT)
+- $\dfrac{\Gamma\mapsto\texttt{t}_1\texttt{:R}_1\quad\texttt{R}_1\texttt{=Bot}}{\Gamma\mapsto\texttt{t}_1\texttt{.l}_i\texttt{:Bot}}$        (TA-PROJBOT)
+

@@ -405,3 +405,46 @@ We use $\texttt{A},\texttt{B},\texttt{C}$ as the names of base types.
 ### 13.5 Safety
 
 - Preservation, Substitution, and Progress (omitted)
+
+
+
+## Chapter 14: Exceptions
+
+### 14.1 Raising Exceptions
+
+- **Syntax**: $\texttt{t}::=\dots\mid\texttt{error}$
+- **Evaluation rules**
+  - $\texttt{error t}_2\to\texttt{error}$        (E-APPERR1)
+  - $\texttt{v}_1\texttt{ error}\to\texttt{error}$        (E-APPERR2)
+- **Typing rules**: $\Gamma\vdash\texttt{error:T}$        (T-ERROR)
+  - The term $\texttt{error}$ form is allowed to have any type.
+- $\texttt{error}$ is not included in the syntax of values to guarantee that there will NEVER be an overlap between the left-hand sides of the E-APPABS and E-APPERR2 rules. 
+
+- Theorem [Progress]: Suppose $\texttt{t}$ is a closed, well-typed normal form. Then either $\texttt{t}$ is a value or $\texttt{error}$.
+
+### 14.2 Handling Exceptions
+
+- **Syntax**: $\texttt{t}::=\dots\mid\texttt{try t with t}$
+- **Evaluation rules**
+  - $\texttt{try v}_1\texttt{ with t}_2\to\texttt{v}_1$        (E-TRYV)
+  - $\texttt{try error with t}_2\to\texttt{t}_2$        (E-TRYERROR)
+  - $\dfrac{\texttt{t}_1\to\texttt{t}_1'}{\texttt{try t}_1\texttt{ with t}_2\to\texttt{try t}_1'\texttt{ with t}_2}$        (E-TRY)
+- **Typing rules**
+  - $\dfrac{\Gamma\vdash\texttt{t}_1\texttt{:T}\quad\Gamma\vdash\texttt{t}_2\texttt{:T}}{\Gamma\vdash\texttt{try t}_1\texttt{ with t}_2\texttt{:T}}$        (T-TRY)
+
+### 14.3 Exceptions Carrying Values
+
+- **Syntax**: $\texttt{t}::=\dots\mid\texttt{raise t}\mid\texttt{try t with t}$
+- **Evaluation rules**
+  - $\texttt{(raise v}_{11}\texttt{)t}_2\to\texttt{raise v}_{11}$        (E-APPRAISE1)
+  - $\texttt{v}_1\texttt{(raise v}_{21}\texttt{)}\to\texttt{raise v}_{21}$        (E-APPRAISE2)
+  - $\dfrac{\texttt{t}_1\to\texttt{t}_1'}{\texttt{raise t}_1\to\texttt{raise t}_1'}$        (E-RAISE)
+  - $\texttt{raise (raise v}_{11}\texttt{)}\to\texttt{raise v}_{11}$        (E-RAISERAISE)
+  - $\texttt{try v}_1\texttt{ with t}_2\to\texttt{v}_1$        (E-TRYV)
+  - $\texttt{try raise v}_{11}\texttt{ with t}_2\to\texttt{t}_2\texttt{v}_{11}$        (E-TRYRAISE)
+  - $\dfrac{\texttt{t}_1\to\texttt{t}_1'}{\texttt{try t}_1\texttt{ with t}_2\to\texttt{try t}_1'\texttt{ with t}_2}$        (E-TRY)
+- **Typing rules**
+  - $\dfrac{\Gamma\vdash\texttt{t}_1\texttt{:T}_{exn}}{\Gamma\vdash\texttt{raise t}_1\texttt{:T}}$        (T-EXN)
+  - $\dfrac{\Gamma\vdash\texttt{t}_1\texttt{:T}\quad\Gamma\vdash\texttt{t}_2\texttt{:T}_{exn}\to\texttt{T}}{\Gamma\vdash\texttt{try t}_1\texttt{ with t}_2\texttt{:T}}$        (T-TRY)
+
+- Alternatives of $\texttt{T}_{exn}$: $\texttt{Nat},\texttt{String}$, variant type using $\texttt{case}$ to distinguish.
